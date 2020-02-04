@@ -1,6 +1,6 @@
 ---
-title: 引用类型-Array.md
-date: 2020-02-2
+title: 引用类型-Array
+date: 2020-02-02
 tags: 红皮书
 categories: 红皮书
 ---
