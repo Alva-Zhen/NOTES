@@ -1,5 +1,8 @@
-arr.some(function(item, index, arr) {
-  if (item === 5) {
-    return item;
-  }
-});
+var x = "window";
+var obj = {
+  x: "obj"
+};
+function test(y) {
+  console.log(this.x + y);
+}
+test.apply(obj, [1]);
