@@ -33,14 +33,14 @@ console.log(arr);//[1, 2]
 
 ##### 判断方法
 
-1.  instanceof
-    该方法假定只有一个全局执行环境，但是如果有不同框架，那么就有可能有多个不同的全局执行环境，就会有不同版本的构造函数，判断就不会很准确。
-2.  Array.isArray()
-    可以跨域不同执行环境的歧视来判断。
-    ```
-    var arr=[1,2,3];
-    console.log(Array.isArray(arr));//true
-    ```
+1. <p>instanceof</p>
+   该方法假定只有一个全局执行环境，但是如果有不同框架，那么就有可能有多个不同的全局执行环境，就会有不同版本的构造函数，判断就不会很准确。
+2. Array.isArray()
+   可以跨域不同执行环境的歧视来判断。
+   ```
+   var arr=[1,2,3];
+   console.log(Array.isArray(arr));//true
+   ```
 
 ##### 转换方法
 
