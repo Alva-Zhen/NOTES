@@ -1,15 +1,8 @@
-var singleton = (function() {
-  //私有变量和私有函数
-  var privateVariable = 10;
-  function privateFunction() {
-    return false;
-  }
-  //特权/公有方法和属性
-  return {
-    publicProperty: true,
-    publicMethod: function() {
-      privateVariable++;
-      return privateFunction();
-    }
-  };
-})();
+var list = document.getElementById("myLinks");
+list.addEventListener(
+  "click",
+  function(event) {
+    //区分不同li标签，做不同的操作
+  },
+  false
+);
