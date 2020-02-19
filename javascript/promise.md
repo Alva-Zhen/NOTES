@@ -129,7 +129,9 @@ console.log(promise === promise2); //false
 let promise1 = new Promise((resolve, reject) => {
   setTimeout(() => resolve("promise111"), 0);
 });
-promise1.then(d => console.log(d)).finally(() => console.log("finally"));```
+promise1.then(d => console.log(d)).finally(() => console.log("finally"));
+
+```
 
 
 #### 尝试实现promise
