@@ -122,9 +122,255 @@ console.log(promise === promise2); //false
 
 2. Promise.prototype.catch(onRejected) 返回promise中的错误。
 
-3. Promise.prototype.finally(onFinally) 前方promise都执行结束才会执行，即使前方promise中有异步代码，也会等异步代码执行完再执行，传参中的函数没有任何参数。
+3. Promise.prototype.finally(onFinally) 前方promise都执行结束才会执行，即使前方promise中有异步代码，也会等异步代码执行完再执行。
+还可以将值传递给后方的then.
+
 ```
 let promise1 = new Promise((resolve, reject) => {
   setTimeout(() => resolve("promise111"), 0);
 });
 promise1.then(d => console.log(d)).finally(() => console.log("finally"));```
+
+
+#### 尝试实现promise
+
+测试promise规范使用`promises-aplus-tests`
+```
+//全局安装
+npm install -g promises-aplus-tests
+//测试
+npx promises-aplus-tests promise.js
+```
+
+
+```
+/**
+ * promise是一个包含了兼容promise规范then方法的对象或函数，
+ * thenable 是一个包含了then方法的对象或函数。
+ * value 是任何Javascript值。 (包括 undefined, thenable, promise等).
+ * exception 是由throw表达式抛出来的值。
+ * reason 是一个用于描述Promise被拒绝原因的值
+ */
+
+//记录promise的三个状态，promise必须是这三个状态之一
+let pending = "pending"; //执行中
+let fulfilled = "fulfilled"; //成功
+let rejected = "rejected"; //失败
+
+class Promise {
+	//类传参是在constructor中
+	constructor(executor) {
+		this.status = pending
+		this.value = undefined;
+		this.reason = undefined;
+
+		this.onResolvedCallbacks = [];
+		this.onRejectedCallbacks = [];
+
+		let resolve = (value) => {
+			if (this.status === pending) {
+				//解决new Promise的时候resolve一个promise
+				if (value instanceof Promise) {
+					value.then(resolve, reject)
+					return
+				}
+				this.status = fulfilled;
+				this.value = value;
+				this.onResolvedCallbacks.forEach(fn => fn())
+			}
+		}
+		let reject = (reason) => {
+			if (this.status === pending) {
+				//这里不需要特别的处理，只要返回错误就好
+				this.status = rejected;
+				this.reason = reason;
+				this.onRejectedCallbacks.forEach(fn => fn())
+			}
+		}
+
+		try {
+			executor(resolve, reject)
+		} catch (e) {
+			reject(e)
+		}
+
+	}
+
+	then(onFulfilled, onRejected) {
+		let promise2 = new Promise((resolve, reject) => {
+			//如果没有传相应的函数，应该把相应的接收的值传递下去
+			onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : value => value;
+			onRejected = typeof onRejected === 'function' ? onRejected : e => {
+				return reject(e)
+			};
+
+			if (this.status === fulfilled) {
+				setTimeout(() => {
+					try {
+						let x = onFulfilled(this.value);
+						resolvePromise(promise2, x, resolve, reject)
+					} catch (e) {
+						reject(e)
+					}
+				}, 0)
+			}
+
+			if (this.status === rejected) {
+				setTimeout(() => {
+					try {
+						let x = onRejected(this.reason);
+						resolvePromise(promise2, x, resolve, reject)
+					} catch (e) {
+						reject(e)
+					}
+				}, 0)
+			}
+
+			// 发布订阅：当一个对象的状态发生改变时，所有依赖于它的对象都将得到状态改变的通知
+			if (this.status === pending) {
+				this.onResolvedCallbacks.push(() => {
+					setTimeout(() => {
+						try {
+							let x = onFulfilled(this.value);
+							resolvePromise(promise2, x, resolve, reject)
+						} catch (e) {
+							reject(e)
+						}
+					}, 0)
+				});
+				this.onRejectedCallbacks.push(() => {
+					setTimeout(() => {
+						try {
+							let x = onRejected(this.reason);
+							resolvePromise(promise2, x, resolve, reject)
+						} catch (e) {
+							reject(e)
+						}
+					}, 0)
+				})
+			}
+		})
+		return promise2
+	}
+	catch (errCallback) { // catch就是没有成功的then方法
+		return this.then(null, errCallback)
+	}
+	
+	//想象成只走成功方法的then，
+	// 因为他无论成功还是失败都会执行，那可以把不管还是成功失败的结果只要传到成功的方法中就可以了
+	// 而then方法刚好返回的是一个promise 对象
+	finally(onFinally) {
+		return this.then(onFinally, null)
+	}
+}
+
+Promise.resolve = (value) => {
+	if (value instanceof Promise) {
+		return value
+	}
+	return new Promise((resolve, reject) => {
+		resolve(value)
+	})
+}
+
+Promise.reject = (value) => {
+	return new Promise((resolve, reject) => {
+		reject(value)
+	})
+}
+
+Promise.all = (iterable) => {
+	if (!Array.isArray(iterable)) {
+		return new TypeError('object is not iterable (cannot read property Symbol(Symbol.iterator))')
+	}
+	return new Promise((resolve, reject) => {
+		let fulfilledRes = [];
+		let rejectedRes = [];
+		if (iterable.length === 0) {
+			resolve(fulfilledRes)
+		} else {
+			iterable.forEach((fn) => {
+				if (fn.status === fulfilled) {
+					fulfilledRes.push(fn.value);
+				}
+				if (fn.status === rejected) {
+					rejectedRes.push(fn.reason)
+				}
+			})
+			if (rejectedRes.length > 0) {
+				reject(rejectedRes[0])
+			} else {
+				resolve(fulfilledRes)
+			}
+		}
+	})
+}
+
+Promise.race = (iterable) => {
+	if (!Array.isArray(iterable)) {
+		return new TypeError('object is not iterable (cannot read property Symbol(Symbol.iterator))')
+	}
+	return new Promise((resolve, reject) => {
+		if (iterable.length === 0) {
+			resolve('')
+		} else {
+			iterable.forEach((fn) => {
+				if (fn.status === fulfilled) {
+					resolve(fn.value);
+				}
+				if (fn.status === rejected) {
+					reject(fn.reason)
+				}
+			})
+		}
+	})
+}
+
+
+function resolvePromise(promise2, x, resolve, reject) {
+	if (promise2 === x) {
+		reject(new TypeError('promise2===x'))
+	}
+
+	if ((typeof x === 'object' && x !== null) || typeof x === 'function') {
+		let called;
+		try {
+			let then = x.then;
+			if (typeof then === 'function') {
+				then.call(x, y => {
+					if (called) return;
+					called = true;
+					resolvePromise(promise2, y, resolve, reject)
+				}, r => {
+					if (called) return;
+					called = true;
+					reject(r)
+				})
+			} else {
+				if (called) return;
+				called = true;
+				resolve(x)
+			}
+		} catch (e) {
+			if (called) return;
+			called = true;
+			reject(e)
+		}
+	} else {
+		resolve(x)
+	}
+}
+
+
+Promise.defer = Promise.deferred = function () { // 稍后继续说 catch
+	let dfd = {}
+	dfd.promise = new Promise((resolve, reject) => {
+		dfd.resolve = resolve;
+		dfd.reject = reject;
+	})
+	return dfd;
+}
+
+module.exports = Promise;
+
+```
