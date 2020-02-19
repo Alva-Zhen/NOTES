@@ -364,7 +364,7 @@ function resolvePromise(promise2, x, resolve, reject) {
 }
 
 
-Promise.defer = Promise.deferred = function () { // 稍后继续说 catch
+Promise.defer = Promise.deferred = function () {
 	let dfd = {}
 	dfd.promise = new Promise((resolve, reject) => {
 		dfd.resolve = resolve;
