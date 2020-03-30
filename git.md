@@ -39,9 +39,11 @@ git stash pop;//恢复储藏的工作区的同时删除储藏室
 git cherry-pick <id>;//将某一次提交复制到当前分支
 
 <!-- 本地与远程库 -->
+//origin其实是远程仓库的名字，也可以是别的
 git remote;//查看远程库的信息
 git remote -v;//查看远程库的详细信息
 git remote add origin <远程仓库地址>;//关联远程仓库
+git remote rm origin;//删除远程仓库
 git checkout -b <branch> origin/<branch>;//在本地创建和远程分支对应的分支
 git branch --set-upstream-to=origin/<branch> <branch>;//设置本地分支与远程仓库分支的连接
 git pull;//推送本地内容到远程仓库
