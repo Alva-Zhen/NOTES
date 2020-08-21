@@ -282,4 +282,34 @@
 
     深拷贝和浅拷贝的区别是内存中存储类型不同。基本数据类型的值和大小是固定的，存储在栈中，释放的时候是系统自动释放；引用类型是存储在堆中，大小是动态分配的，不会自动释放。对于一个基本数据类型，例如一个变量a=1；我将a的值赋给变量b，会在栈中生成一个a的副本，对于对象，如果以赋值方法将一个对象付给另一个变量，只是将一个指针付给了这个变量，然后，需要我们对于堆中的对象也进行复制，对于对象中的引用类型没有进行复制的是浅拷贝，对于对象中引用类型也进行复制的是深拷贝。
 
+12. 判断数据类型（typeof  incetanceof区别）
 
+    typeof：判断基本类型，返回undefined，boolean，string，number，返回相应的字符串，function类型返回function，对于null，引用类型等返回object。
+
+    incetanceof：判断某个对象是不是另一个对象的实例，原理是根据构造函数来判断。
+
+    Object.prototype.toString.call()：返回相应的数据类型。
+    ```
+    typeof '字符串' //"string"
+    typeof 1 //"number"
+    typeof true //"boolean"
+    typeof undefined //"undefined"
+    typeof null //"object"
+    typeof [1,2,3] //"object"
+    function a(){}
+    typeof a // "function"
+
+    function B(){}
+    let b=new B()
+    b instanceof B //true
+
+    Object.prototype.toString.call('zifuchuan') //"[object String]"
+    Object.prototype.toString.call(1) // "[object Number]"
+    Object.prototype.toString.call(true) // "[object Boolean]"
+    Object.prototype.toString.call(undefined) // "[object Undefined]"
+    Object.prototype.toString.call(null) //"[object Null]"
+    Object.prototype.toString.call(b) // "[object Object]"
+    Object.prototype.toString.call(B) // "[object Function]"
+    Object.prototype.toString.call([1,2,3]) // "[object Array]"
+    Object.prototype.toString.call({a:1}) //"[object Object]"
+    ```
