@@ -22,9 +22,9 @@
     b. 通过new 的方式，this永远指向新创建的对象。
     ```
     function Person(name,age){
-    this.name = name
-    this.age = age
-    console.log(this)
+        this.name = name
+        this.age = age
+        console.log(this)
     }
 
     var xiaohu = new Person('小胡',24)// this = > xiaohu
@@ -55,10 +55,10 @@
     var b=new A()
     /**
     过程：
-    a. 创建一个新对象:let o=new Object()
-    b. 将新对象的__proto__指向构造函数的原型对象 o.__proto__=A.prototypr
-    c. 将构造函数的this指向新对象；A.call(o)
-    d. 将新对象返回给实例。b=o
+        a. 创建一个新对象:let o=new Object()
+        b. 将新对象的__proto__指向构造函数的原型对象 o.__proto__=A.prototypr
+        c. 将构造函数的this指向新对象；A.call(o)
+        d. 将新对象返回给实例。b=o
     **/``
     ```
     ```
